@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_file, send_from_directory, request
+from flask import Flask, render_template, send_file, request
 import os
 import removebg
 
@@ -11,19 +11,12 @@ UPLOADS_DIR = os.path.join(os.path.dirname(__file__), 'uploads')
 def index():
     return render_template('index.html')
 
+D_DIR = os.path.join(os.path.dirname(__file__), 'removed_images')
 
-uploaded_file_path = ''
-
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['POST', 'GET'])
 def upload():
-    global uploaded_file_path
-    if 'file' not in request.files:
-        return 'No file part', 400
-    
+    global uploaded_file_pat
     file = request.files['file']
-    if file.filename == '':
-        return 'No selected file', 400
-    
     if file:
         # Create the 'uploads' directory if it doesn't exist
         os.makedirs(UPLOADS_DIR, exist_ok=True)
@@ -32,13 +25,15 @@ def upload():
         file_path = os.path.join(UPLOADS_DIR, file.filename)
         try:
             file.save(file_path)
+            # Store the file path in a variable and print it
+            uploaded_file_path = file_path
+            os.makedirs(D_DIR, exist_ok=True)
+            download_file_path = os.path.join(D_DIR, 'output_image.png')
+            removebg.remove_background(uploaded_file_path, download_file_path, 'e1BA4hMvom21bGBbHyzxaaei')#Replace with your API key from remove.bg/tools-api
+
         except Exception as e:
             return f'Failed to save file: {str(e)}', 500
-        
-        # Store the file path in a variable and print it
-        uploaded_file_path = file_path
 
-        removebg.remove_background(uploaded_file_path, 'e1BA4hMvom21bGBbHyzxaaei')#Replace with your API key from remove.bg/tools-api
     return uploaded_file_path
 
 
@@ -50,19 +45,11 @@ def uploaded_file(filename):
 
 
 
-
-
-
-
-
-
-
-IMAGE_PATH = 'C:\\Users\\Boluwatife\Desktop\\Bg-Remover-Flask\\removed_images\\output_image.png'
-
 @app.route('/download-image')
 def download_image():
+    IMAGE_PATH = os.path.join(D_DIR, 'output_image.png')
     return send_file(IMAGE_PATH, as_attachment=True)
-    
+
 
 
 if __name__ == '__main__':
