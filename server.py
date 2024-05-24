@@ -28,7 +28,7 @@ def upload():
             # Store the file path in a variable and print it
             uploaded_file_path = file_path
             os.makedirs(D_DIR, exist_ok=True)
-            download_file_path = os.path.join(D_DIR, 'output_image.png')
+            download_file_path = os.path.join(D_DIR, 'remove-bg.png')
             removebg.remove_background(uploaded_file_path, download_file_path, 'e1BA4hMvom21bGBbHyzxaaei')#Replace with your API key from remove.bg/tools-api
 
         except Exception as e:
@@ -47,7 +47,7 @@ def uploaded_file(filename):
 
 @app.route('/download-image')
 def download_image():
-    IMAGE_PATH = os.path.join(D_DIR, 'output_image.png')
+    IMAGE_PATH = os.path.join(D_DIR, 'remove-bg.png')
     return send_file(IMAGE_PATH, as_attachment=True)
 
 
